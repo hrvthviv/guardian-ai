@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN.ai | 0.1% Contract Audit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #050505; color: white; font-family: sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <nav class="p-6 border-b border-white/5 flex justify-between">
+        <div class="font-black tracking-widest text-red-600">GUARDIAN.AI</div>
+        <div class="text-xs text-zinc-500 uppercase tracking-tighter">Secure Audit Active</div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto pt-20 px-6 text-center">
+        <h1 class="text-6xl font-bold mb-6 italic">Ne írd alá <span class="text-zinc-500 underline">vakvágányon.</span></h1>
+        <p class="text-zinc-400 mb-12">Töltsd fel a szerződésed szövegét, és a 0.1%-os auditorunk 10 másodperc alatt kiszűri a csapdákat.</p>
+
+        <div class="glass p-8 rounded-3xl shadow-2xl">
+            <textarea id="contractInput" class="w-full h-64 bg-transparent border border-white/10 rounded-xl p-4 text-sm text-zinc-300 focus:outline-none focus:border-red-500 transition" placeholder="Másold ide a szerződés szövegét..."></textarea>
+            
+            <button onclick="startAudit()" id="auditBtn" class="mt-6 bg-white text-black px-12 py-4 rounded-full font-bold hover:bg-red-600 hover:text-white transition-all w-full uppercase tracking-widest">
+                Audit Indítása
+            </button>
+        </div>
+
+        <div id="resultArea" class="mt-12 hidden text-left glass p-8 rounded-3xl border-t-4 border-red-600">
+            <h2 class="text-2xl font-bold mb-4">Audit Jelentés</h2>
+            <div id="aiResponse" class="whitespace-pre-line text-zinc-300 font-mono text-sm leading-relaxed">
+                Elemzés folyamatban...
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function startAudit() {
+            const text = document.getElementById('contractInput').value;
+            const btn = document.getElementById('auditBtn');
+            const resArea = document.getElementById('resultArea');
+            const resText = document.getElementById('aiResponse');
+
+            if(!text) return alert("Kérlek másolj be egy szöveget!");
+
+            btn.innerText = "KERESÉS A CSAPDÁK KÖZÖTT...";
+            btn.disabled = true;
+            resArea.classList.remove('hidden');
+
+            // Itt hívjuk meg a háttérben futó AI-t
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: JSON.stringify({ contract: text }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                resText.innerText = data.analysis;
+            } catch (e) {
+                resText.innerText = "Hiba történt. Ellenőrizd az API beállításokat!";
+            } finally {
+                btn.innerText = "Audit Indítása";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
